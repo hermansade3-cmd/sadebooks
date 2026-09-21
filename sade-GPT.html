@@ -341,10 +341,10 @@
 
 <div id="api-setup" style="display:none">
     <div class="setup-card">
-        <h2>🔑 Weka Groq API Key</h2>
-        <p>Weka Groq API Key yako <strong>(BURE)</strong> ili kuanza kutumia <strong>SadeGPT</strong>. Pata key bure kwenye <strong>console.groq.com</strong></p>
+        <h2>🔑 Weka Gemini API Key</h2>
+        <p>Weka Gemini API Key yako <strong>(BURE)</strong> ili kuanza kutumia <strong>SadeGPT</strong>. Pata key bure kwenye <strong>aistudio.google.com</strong></p>
         <div class="input-group">
-            <input type="password" id="api-key-input" placeholder="gsk_..." />
+            <input type="password" id="api-key-input" placeholder="AQ...." />
         </div>
         <button class="btn-primary" onclick="saveApiKey()">Anza Kutumia SadeGPT →</button>
     </div>
@@ -394,14 +394,14 @@
 </div>
 
 <script>
-    let API_KEY = 'gsk_0CffLm54yFBnn3muKsJz' + 'WGdyb3FYdOxwDHuoB8uVXdhNv9uMUUAp';
+    let API_KEY = 'AQ.Ab8RN6LcDf2vnwOvMPp9xrLxaL1iuNbV45NDTD9rFADvcqrf6w';
     let messages = [];
 
     const SYSTEM_PROMPT = `Wewe ni SadeGPT, msaidizi wa AI wa akili ya bandia. Ulioundwa na Herman Sade maalum ili kusaidia watumiaji wa Kiswahili.
 
 Kanuni zako muhimu:
 - Jibu KILA WAKATI kwa Kiswahili tu
-- Jina lako ni SadeGPT pekee - usiseme kamwe kwamba wewe ni ChatGPT, OpenAI, Groq, au Llama
+- Jina lako ni SadeGPT pekee - usiseme kamwe kwamba wewe ni ChatGPT, OpenAI, Google, au Gemini
 - Uliundwa na Herman Sade - hii ndiyo ukweli wako
 - Kuwa na urafiki, msaada, na ukweli daima
 - Jibu kwa undani lakini kwa uwazi na lugha rahisi
@@ -414,7 +414,7 @@ Kanuni zako muhimu:
 
     function saveApiKey() {
         const key = document.getElementById('api-key-input').value.trim();
-        if (!key.startsWith('gsk_')) { alert('API Key si sahihi. Inapaswa kuanza na "gsk_"'); return; }
+        if (!key) { alert('Tafadhali weka API Key.'); return; }
         API_KEY = key;
         sessionStorage.setItem('sade_key', key);
         document.getElementById('api-setup').style.display = 'none';
@@ -498,18 +498,23 @@ Kanuni zako muhimu:
         addTyping();
 
         try {
-            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: 'llama-3.3-70b-versatile',
-                    messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-                    temperature: 0.8
-                })
-            });
+            const geminiContents = messages.map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }]
+            }));
+
+            const res = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: geminiContents,
+                        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                        generationConfig: { temperature: 0.8 }
+                    })
+                }
+            );
 
             const data = await res.json();
             document.getElementById('typing')?.remove();
@@ -517,19 +522,20 @@ Kanuni zako muhimu:
             if (data.error) {
                 addMessage('ai', `❌ Hitilafu: ${data.error.message}`);
             } else {
-                const reply = data.choices[0].message.content;
-                messages.push({ role: 'assistant', content: reply });
+                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+                    || '❌ Hakuna jibu lililopatikana.';
                 addMessage('ai', reply);
+                messages.push({ role: 'assistant', content: reply });
             }
         } catch (err) {
             document.getElementById('typing')?.remove();
-            addMessage('ai', '❌ Samahani, kuna tatizo la mtandao. Tafadhali jaribu tena.');
+            addMessage('ai', `❌ Hitilafu ya mtandao: ${err.message}`);
+        } finally {
+            btn.disabled = false;
+            input.focus();
         }
-
-        btn.disabled = false;
-        input.focus();
     }
 </script>
+
 </body>
-            </html>
-    
+</html>
