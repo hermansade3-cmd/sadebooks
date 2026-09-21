@@ -4,77 +4,157 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>SadeGPT - Msaidizi wa SadeBooks | Kiswahili</title>
-<meta name="description" content="SadeGPT - Msaidizi wa SadeBooks anayejibu papo hapo kuhusu vitabu, bei, malipo, na huduma za Herman Studio. Hakuna API wala key inayohitajika.">
+<meta name="description" content="SadeGPT - Msaidizi wa SadeBooks mwenye maswali 200+ yaliyotengenezwa tayari kuhusu vitabu, bei, malipo, na huduma za Herman Studio. Hakuna API wala internet ya ziada inayohitajika.">
 <style>
   :root{
-    --bg:#0b0f14; --panel:#161d29; --panel2:#1c2534;
-    --accent:#1fbf83; --accent2:#f2b705; --text:#eef2f6; --sub:#9fb0c3;
-    --bubble-user: linear-gradient(135deg,#1fbf83,#159e6c);
-    --bubble-bot:#1c2534; --border:#25324580; --radius:16px;
+    --bg:#0a0e13; --panel:#141b26; --panel2:#1b2330; --panel3:#101720;
+    --accent:#20c785; --accent-dk:#0f8a5c; --accent2:#f5bd2e;
+    --text:#eef2f6; --sub:#93a4b8; --border:#2a374a66;
+    --bubble-user: linear-gradient(135deg,#20c785,#0f9e6a);
+    --bubble-bot:#1b2330; --radius:16px; --shadow:0 8px 28px #00000055;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
     margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    background:radial-gradient(1200px 600px at 20% -10%, #1a2a2280 0%, transparent 60%),
-               radial-gradient(1000px 500px at 100% 0%, #2a1f3380 0%, transparent 60%), var(--bg);
-    color:var(--text); display:flex; flex-direction:column;
+    background:
+      radial-gradient(1100px 550px at 15% -10%, #17392b60 0%, transparent 60%),
+      radial-gradient(900px 500px at 105% 0%, #2a204660 0%, transparent 60%),
+      var(--bg);
+    color:var(--text); overflow:hidden;
+  }
+  ::-webkit-scrollbar{width:7px; height:7px;}
+  ::-webkit-scrollbar-thumb{background:#33455c; border-radius:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  .app-shell{display:flex; height:100dvh; height:100vh;}
+
+  /* ================= SIDEBAR ================= */
+  .sidebar{
+    width:320px; max-width:86vw; flex:none; background:linear-gradient(180deg,var(--panel3),#0d131b);
+    border-right:1px solid var(--border); display:flex; flex-direction:column;
+    position:fixed; top:0; left:0; height:100%; z-index:60;
+    transform:translateX(-104%); transition:transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow:var(--shadow);
     padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   }
-  header{
-    position:sticky; top:0; top:env(safe-area-inset-top,0px); z-index:20;
-    display:flex; align-items:center; gap:12px;
-    padding:14px 16px; background:rgba(11,15,20,0.9); backdrop-filter:blur(10px);
+  .sidebar.open{transform:translateX(0);}
+  .sb-head{
+    display:flex; align-items:center; gap:10px; padding:16px 14px 12px;
     border-bottom:1px solid var(--border);
   }
-  .logo{
-    width:40px; height:40px; border-radius:12px; flex:none;
-    background:linear-gradient(135deg,var(--accent),#0f8a5c);
-    display:flex; align-items:center; justify-content:center;
-    font-weight:800; font-size:18px; color:#04140c;
-    box-shadow:0 4px 14px #1fbf8355;
-  }
-  header h1{font-size:16px; margin:0; line-height:1.2;}
-  header p{margin:0; font-size:12px; color:var(--sub);}
-  .status{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:11px; color:var(--sub);}
-  .dot{width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent);}
-  a.home-link{color:var(--sub); text-decoration:none; font-size:12px;}
+  .sb-head .logo{width:36px;height:36px;border-radius:11px;font-size:16px;}
+  .sb-head .titles{flex:1; min-width:0;}
+  .sb-head strong{font-size:14.5px; display:block;}
+  .sb-head span{font-size:11.5px; color:var(--sub);}
+  .sb-close{background:none; border:none; color:var(--sub); font-size:19px; cursor:pointer; padding:4px 8px;}
+  .sb-close:hover{color:var(--text);}
 
-  main{flex:1; overflow-y:auto; padding:16px; max-width:720px; margin:0 auto; width:100%;}
-  .msg{display:flex; gap:10px; margin-bottom:16px; max-width:100%;}
+  .sb-search{padding:12px 14px;}
+  .sb-search input{
+    width:100%; background:var(--panel); border:1px solid var(--border); color:var(--text);
+    padding:10px 12px; border-radius:11px; font-size:13.5px; outline:none;
+  }
+  .sb-search input:focus{border-color:var(--accent);}
+  .sb-count{padding:0 14px 8px; font-size:11px; color:var(--sub);}
+
+  .sb-body{flex:1; overflow-y:auto; padding:2px 8px 16px;}
+  .cat{margin-bottom:4px; border-radius:12px; overflow:hidden;}
+  .cat-head{
+    width:100%; display:flex; align-items:center; gap:8px; background:none; border:none;
+    color:var(--text); padding:10px 8px; cursor:pointer; font-size:13px; font-weight:600;
+    border-radius:10px; text-align:left;
+  }
+  .cat-head:hover{background:var(--panel2);}
+  .cat-head .n{margin-left:auto; font-size:10.5px; color:var(--sub); font-weight:400;
+    background:var(--panel2); padding:2px 7px; border-radius:999px;}
+  .cat-head .arrow{transition:transform .2s; font-size:10px; color:var(--sub);}
+  .cat.expanded .cat-head .arrow{transform:rotate(90deg);}
+  .cat-list{display:none; padding:2px 4px 8px 10px;}
+  .cat.expanded .cat-list{display:block;}
+  .qbtn{
+    display:block; width:100%; text-align:left; background:none; border:none;
+    color:var(--sub); font-size:12.5px; padding:7px 10px; border-radius:9px; cursor:pointer;
+    line-height:1.35; border-left:2px solid transparent;
+  }
+  .qbtn:hover{background:var(--panel2); color:var(--text); border-left-color:var(--accent);}
+  .cat[hidden], .qbtn[hidden]{display:none;}
+
+  .overlay{
+    position:fixed; inset:0; background:#00000075; z-index:55; opacity:0; pointer-events:none;
+    transition:opacity .25s;
+  }
+  .overlay.show{opacity:1; pointer-events:auto;}
+
+  /* ================= MAIN COLUMN ================= */
+  .main-col{flex:1; min-width:0; display:flex; flex-direction:column; height:100%;}
+
+  header{
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px; padding-top:calc(14px + env(safe-area-inset-top,0px));
+    background:rgba(10,14,19,0.85); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border); flex:none;
+  }
+  .menu-btn{
+    background:var(--panel2); border:1px solid var(--border); color:var(--text);
+    width:38px; height:38px; border-radius:11px; cursor:pointer; font-size:16px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .menu-btn:hover{border-color:var(--accent); color:var(--accent);}
+  .logo{
+    width:38px; height:38px; border-radius:12px; flex:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent-dk));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:17px; color:#04140c;
+    box-shadow:0 4px 14px #20c78555;
+  }
+  header h1{font-size:15.5px; margin:0; line-height:1.2;}
+  header p{margin:0; font-size:11.5px; color:var(--sub);}
+  .status{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:11px; color:var(--sub);
+    background:var(--panel2); border:1px solid var(--border); padding:6px 11px; border-radius:999px;}
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent);}
+
+  main{flex:1; overflow-y:auto; padding:18px 16px; max-width:760px; margin:0 auto; width:100%;}
+  .msg{display:flex; gap:10px; margin-bottom:16px; max-width:100%; animation:pop .18s ease;}
+  @keyframes pop{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
   .msg.user{flex-direction:row-reverse;}
   .avatar{
     width:30px; height:30px; border-radius:9px; flex:none; display:flex; align-items:center;
     justify-content:center; font-size:13px; font-weight:700;
   }
-  .msg.bot .avatar{background:linear-gradient(135deg,var(--accent),#0f8a5c); color:#04140c;}
+  .msg.bot .avatar{background:linear-gradient(135deg,var(--accent),var(--accent-dk)); color:#04140c;}
   .msg.user .avatar{background:var(--panel2); color:var(--text); border:1px solid var(--border);}
   .bubble{
-    padding:12px 14px; border-radius:var(--radius); font-size:14.5px; line-height:1.55;
-    max-width:82%; white-space:pre-wrap; word-wrap:break-word;
+    padding:12px 15px; border-radius:var(--radius); font-size:14.5px; line-height:1.6;
+    max-width:82%; white-space:pre-wrap; word-wrap:break-word; box-shadow:var(--shadow);
   }
   .msg.bot .bubble{background:var(--bubble-bot); border:1px solid var(--border); border-top-left-radius:4px;}
-  .msg.user .bubble{background:var(--bubble-user); color:#04140c; font-weight:500; border-top-right-radius:4px;}
+  .msg.user .bubble{background:var(--bubble-user); color:#04140c; font-weight:500; border-top-right-radius:4px; box-shadow:0 6px 18px #20c78544;}
   .bubble b{color:var(--accent2);}
   .msg.user .bubble b{color:#04140c;}
-  .bubble a{color:var(--accent2);}
+  .bubble a{color:var(--accent2); font-weight:600;}
   .msg.user .bubble a{color:#04140c; text-decoration:underline;}
 
-  .intro{text-align:center; padding:26px 10px 10px;}
-  .intro .logo{margin:0 auto 12px; width:56px; height:56px; font-size:24px; border-radius:16px;}
-  .intro h2{margin:0 0 6px; font-size:20px;}
-  .intro p{margin:0; color:var(--sub); font-size:13.5px; max-width:420px; margin:0 auto;}
+  .intro{text-align:center; padding:22px 10px 6px;}
+  .intro .logo{margin:0 auto 12px; width:58px; height:58px; font-size:25px; border-radius:17px;}
+  .intro h2{margin:0 0 6px; font-size:21px;}
+  .intro p{margin:0 auto; color:var(--sub); font-size:13.5px; max-width:440px;}
   .badge{
-    display:inline-block; margin-top:10px; font-size:11px; color:var(--accent);
-    background:#1fbf8322; border:1px solid #1fbf8355; padding:4px 10px; border-radius:999px;
+    display:inline-flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:var(--accent);
+    background:#20c78522; border:1px solid #20c78555; padding:5px 12px; border-radius:999px;
   }
+  .open-menu-hint{
+    display:inline-flex; align-items:center; gap:6px; margin-top:8px; font-size:11.5px; color:var(--sub);
+    background:var(--panel); border:1px solid var(--border); padding:7px 13px; border-radius:999px; cursor:pointer;
+  }
+  .open-menu-hint:hover{border-color:var(--accent); color:var(--accent);}
 
   .chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:18px 0 4px;}
   .chip{
     background:var(--panel); border:1px solid var(--border); color:var(--text);
     padding:9px 13px; border-radius:999px; font-size:12.5px; cursor:pointer; transition:.15s;
   }
-  .chip:hover{border-color:var(--accent); color:var(--accent);}
+  .chip:hover{border-color:var(--accent); color:var(--accent); transform:translateY(-1px);}
 
   .typing{display:flex; gap:4px; padding:4px 2px;}
   .typing span{width:6px; height:6px; border-radius:50%; background:var(--sub); animation:blink 1.2s infinite;}
@@ -82,11 +162,11 @@
   @keyframes blink{0%,80%,100%{opacity:.2;} 40%{opacity:1;}}
 
   footer{
-    position:sticky; bottom:0; padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
-    background:rgba(11,15,20,0.95); backdrop-filter:blur(10px); border-top:1px solid var(--border);
+    flex:none; padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+    background:rgba(10,14,19,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--border);
   }
   .input-wrap{
-    max-width:720px; margin:0 auto; display:flex; gap:8px; align-items:flex-end;
+    max-width:760px; margin:0 auto; display:flex; gap:8px; align-items:flex-end;
     background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:8px 8px 8px 16px;
   }
   textarea{
@@ -98,98 +178,156 @@
     background:var(--accent); border:none; width:38px; height:38px; border-radius:12px; flex:none;
     color:#04140c; font-size:17px; cursor:pointer; display:flex; align-items:center; justify-content:center;
   }
+  .send-btn:hover{background:#2ddb96;}
   .send-btn:disabled{opacity:.4; cursor:not-allowed;}
   .disclaimer{text-align:center; color:var(--sub); font-size:10.5px; margin-top:8px;}
+
+  @media(min-width:1000px){
+    .sidebar{position:relative; transform:none !important; box-shadow:none;}
+    .overlay{display:none !important;}
+    .app-shell.sidebar-closed .sidebar{width:0; border:none; min-width:0;}
+    .app-shell.sidebar-closed .sb-head, .app-shell.sidebar-closed .sb-search,
+    .app-shell.sidebar-closed .sb-count, .app-shell.sidebar-closed .sb-body{display:none;}
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">S</div>
-  <div>
-    <h1>SadeGPT</h1>
-    <p><a class="home-link" href="index.html">← Rudi SadeBooks</a> · Msaidizi wa Ndani</p>
-  </div>
-  <div class="status"><span class="dot"></span> Iko Tayari</div>
-</header>
+<div class="app-shell sidebar-closed" id="appShell">
 
-<main id="chatArea">
-  <div class="intro" id="introBlock">
-    <div class="logo">S</div>
-    <h2>Habari! Mimi ni SadeGPT 👋</h2>
-    <p>Msaidizi wa SadeBooks. Niulize kuhusu vitabu, bei, malipo, au huduma za Herman Studio — najibu papo hapo, bila internet ya ziada wala akaunti.</p>
-    <div class="badge">⚡ Injini ya ndani — hakuna API key inayohitajika</div>
-    <div class="chips" id="chips">
-      <div class="chip">📚 Vitabu vya biashara mnavyo vipi?</div>
-      <div class="chip">💳 Nalipaje na kupokea kitabu?</div>
-      <div class="chip">💰 Bei ya kitabu ni ngapi?</div>
-      <div class="chip">🎨 Herman Studio anafanya nini?</div>
-      <div class="chip">📖 Kuna vitabu vya bure?</div>
-      <div class="chip">📞 Nawasiliana vipi na Herman?</div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="logo">S</div>
+      <div class="titles"><strong>Maswali ya SadeGPT</strong><span id="sbSubtitle">Zaidi ya maswali 200</span></div>
+      <button class="sb-close" id="sbCloseBtn">✕</button>
     </div>
-  </div>
-</main>
+    <div class="sb-search"><input id="searchQ" placeholder="🔍 Tafuta swali (mf. bei, batiki, logo)..."></div>
+    <div class="sb-count" id="sbCount"></div>
+    <div class="sb-body" id="sbBody"></div>
+  </aside>
 
-<footer>
-  <div class="input-wrap">
-    <textarea id="userInput" rows="1" placeholder="Andika swali lako hapa..."></textarea>
-    <button class="send-btn" id="sendBtn">➤</button>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="main-col">
+    <header>
+      <button class="menu-btn" id="menuBtn" title="Fungua/Funga menyu ya maswali">☰</button>
+      <div class="logo">S</div>
+      <div>
+        <h1>SadeGPT</h1>
+        <p>Msaidizi wa ndani wa SadeBooks</p>
+      </div>
+      <div class="status"><span class="dot"></span> Tayari</div>
+    </header>
+
+    <main id="chatArea">
+      <div class="intro" id="introBlock">
+        <div class="logo">S</div>
+        <h2>Habari! Mimi ni SadeGPT 👋</h2>
+        <p>Msaidizi wa SadeBooks. Niulize kuhusu vitabu, bei, malipo, au huduma za Herman Studio — najibu papo hapo, bila internet ya ziada wala akaunti.</p>
+        <div><span class="badge">⚡ Injini ya ndani — hakuna API</span></div>
+        <div><span class="open-menu-hint" id="openMenuHint">☰ Fungua orodha ya maswali 200+</span></div>
+        <div class="chips" id="chips">
+          <div class="chip">📚 Vitabu vya biashara mnavyo vipi?</div>
+          <div class="chip">💳 Nalipaje na kupokea kitabu?</div>
+          <div class="chip">💰 Bei ya kitabu ni ngapi?</div>
+          <div class="chip">🎨 Herman Studio anafanya nini?</div>
+          <div class="chip">📖 Kuna vitabu vya bure?</div>
+          <div class="chip">📞 Nawasiliana vipi na Herman?</div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="input-wrap">
+        <textarea id="userInput" rows="1" placeholder="Andika swali lako hapa..."></textarea>
+        <button class="send-btn" id="sendBtn">➤</button>
+      </div>
+      <p class="disclaimer">SadeGPT ni msaidizi wa ndani wa maneno-muhimu — kwa uhakika wa mwisho wa bei/malipo thibitisha WhatsApp +255 712 655 957.</p>
+    </footer>
   </div>
-  <p class="disclaimer">SadeGPT ni msaidizi wa ndani wa maneno-muhimu — kwa uhakika wa mwisho wa bei/malipo thibitisha WhatsApp +255 712 655 957.</p>
-</footer>
+</div>
 
 <script>
 /* =========================================================================
-   SADEGPT — Injini ya ndani (hakuna API/AI ya nje) — "hardcoded" ndani ya
-   ukurasa huu. Kila kitu kinatokana na taarifa halisi za SadeBooks.
+   SADEGPT — Injini ya ndani (hakuna API/AI ya nje), + sidebar ya maswali 200+
    ========================================================================= */
 
 const CONTACT = {
   whatsapp: "255712655957",
   whatsappDisplay: "+255 712 655 957",
-  email: "hermansade3@gmail.com",
-  owner: "Herman Sade (Herman O. Sade)",
-  site: "https://hermansade3-cmd.github.io/sadebooks/"
+  email: "hermansade3@gmail.com"
 };
 
 const BOOKS = [
-  {name:"Wakati wa Ujasiriamali", price:1000, cat:"ujasiriamali", kw:["wakati wa ujasiriamali"]},
-  {name:"Changamoto 12 za Ujasiriamali", price:1000, cat:"ujasiriamali", kw:["changamoto 12", "changamoto za ujasiriamali"]},
-  {name:"Mwajiriwa vs Mjasiriamali", price:1000, cat:"ujasiriamali", kw:["mwajiriwa vs mjasiriamali", "mwajiriwa na mjasiriamali"]},
-  {name:"Jinsi ya Kutengeneza Batiki", price:1000, cat:"uzalishaji", kw:["batiki"]},
-  {name:"Jinsi ya Kutengeneza Chaki", price:1000, cat:"uzalishaji", kw:["chaki"]},
-  {name:"Utengenezaji wa Mishumaa", price:1000, cat:"uzalishaji", kw:["mishumaa", "mshumaa"]},
-  {name:"Jinsi ya Kutengeneza Sabuni ya Magadi", price:1000, cat:"uzalishaji", kw:["sabuni ya magadi"]},
-  {name:"Jinsi ya Kutengeneza Sabuni ya Maji", price:1000, cat:"uzalishaji", kw:["sabuni ya maji", "liquid soap"]},
-  {name:"Jinsi ya Kutengeneza Sabuni za Miche", price:1000, cat:"uzalishaji", kw:["sabuni za miche", "bar soap"]},
-  {name:"Jinsi ya Kutengeneza Shampoo", price:1000, cat:"uzalishaji", kw:["shampoo", "shampu"]},
-  {name:"Jinsi ya Kutengeneza Mafuta ya Mgando", price:1000, cat:"uzalishaji", kw:["mafuta ya mgando"]},
-  {name:"Jinsi ya Kutengeneza Jiki (Dawa ya Madoa)", price:5000, cat:"uzalishaji", kw:["jiki"]},
-  {name:"Jinsi ya Kupika Keki ya Ndizi na Nanasi", price:1000, cat:"chakula", kw:["keki ya ndizi", "keki"]},
-  {name:"Jinsi ya Kutengeneza Achali ya Embe", price:1000, cat:"chakula", kw:["achali"]},
-  {name:"Jinsi ya Kutengeneza Tomato Sauce", price:1000, cat:"chakula", kw:["tomato sauce", "sosi ya nyanya"]},
-  {name:"Jinsi ya Kupika Tambi za Dengu", price:1000, cat:"chakula", kw:["tambi za dengu", "tambi"]},
-  {name:"Mwongozo Kamili wa Forex Trading", price:null, cat:"forex", kw:["forex", "mwongozo wa forex"]},
-  {name:"Nguvu ya Kujiamini", price:null, cat:"maendeleo binafsi", kw:["nguvu ya kujiamini", "kujiamini"]},
-  {name:"Unajimu wa Nyota", price:null, cat:"maendeleo binafsi", kw:["unajimu"]}
+  {name:"Wakati wa Ujasiriamali", price:1000, cat:"ujasiriamali", kw:["wakati wa ujasiriamali"],
+    desc:"Kinawaeleza wahitimu na watafuta-ajira jinsi ujasiriamali unavyoweza kuwa mkombozi wa kiuchumi."},
+  {name:"Changamoto 12 za Ujasiriamali", price:1000, cat:"ujasiriamali", kw:["changamoto 12","changamoto za ujasiriamali"],
+    desc:"Kinaeleza changamoto 12 kuu za wajasiriamali Tanzania (mtaji, masoko, elimu n.k.) na suluhisho lake."},
+  {name:"Mwajiriwa vs Mjasiriamali", price:1000, cat:"ujasiriamali", kw:["mwajiriwa vs mjasiriamali","mwajiriwa na mjasiriamali"],
+    desc:"Kinalinganisha tofauti 10 kati ya mwajiriwa na mjasiriamali kukusaidia kutambua njia yako."},
+  {name:"Jinsi ya Kutengeneza Batiki", price:1000, cat:"uzalishaji", kw:["batiki"],
+    desc:"Mwongozo wa hatua kwa hatua wa kutengeneza batiki kwa vibanio, sponji na mshumaa."},
+  {name:"Jinsi ya Kutengeneza Chaki", price:1000, cat:"uzalishaji", kw:["chaki"],
+    desc:"Mwongozo wa kutengeneza chaki za shuleni kwa chokaa, maji na rangi."},
+  {name:"Utengenezaji wa Mishumaa", price:1000, cat:"uzalishaji", kw:["mishumaa","mshumaa"],
+    desc:"Jinsi ya kutengeneza mishumaa kwa paraffin wax, asidi boriki na utambi."},
+  {name:"Jinsi ya Kutengeneza Sabuni ya Magadi", price:1000, cat:"uzalishaji", kw:["sabuni ya magadi"],
+    desc:"Mwongozo wa sabuni ya magadi kwa caustic soda, mafuta ya mawese na sodium silikeit."},
+  {name:"Jinsi ya Kutengeneza Sabuni ya Maji", price:1000, cat:"uzalishaji", kw:["sabuni ya maji","liquid soap"],
+    desc:"Jinsi ya kutengeneza sabuni ya maji (liquid soap) kwa sulphonic, slec na soda ash."},
+  {name:"Jinsi ya Kutengeneza Sabuni za Miche", price:1000, cat:"uzalishaji", kw:["sabuni za miche","bar soap"],
+    desc:"Mwongozo wa sabuni za miche (bar soap) kwa caustic soda na mafuta, ikiwemo sabuni za tiba."},
+  {name:"Jinsi ya Kutengeneza Shampoo", price:1000, cat:"uzalishaji", kw:["shampoo","shampu"],
+    desc:"Jinsi ya kutengeneza shampoo kwa sulphonic acid, slec, soda ash na glycerin."},
+  {name:"Jinsi ya Kutengeneza Mafuta ya Mgando", price:1000, cat:"uzalishaji", kw:["mafuta ya mgando"],
+    desc:"Jinsi ya kutengeneza mafuta ya kujipaka (mgando) kwa micro wax, white oil na perfume."},
+  {name:"Jinsi ya Kutengeneza Jiki (Dawa ya Madoa)", price:5000, cat:"uzalishaji", kw:["jiki"],
+    desc:"Mwongozo wa kutengeneza jiki kwa chloride acid na maji distilled, ikiwa na tahadhari za usalama."},
+  {name:"Jinsi ya Kupika Keki ya Ndizi na Nanasi", price:1000, cat:"chakula", kw:["keki ya ndizi","keki"],
+    desc:"Mapishi ya keki ya ndizi mbivu, nanasi na korosho iliyookwa."},
+  {name:"Jinsi ya Kutengeneza Achali ya Embe", price:1000, cat:"chakula", kw:["achali"],
+    desc:"Jinsi ya kutengeneza achali ya embe kwa embe, nyanya, vitunguu na siki."},
+  {name:"Jinsi ya Kutengeneza Tomato Sauce", price:1000, cat:"chakula", kw:["tomato sauce","sosi ya nyanya"],
+    desc:"Jinsi ya kutengeneza sosi ya nyanya kwa biashara."},
+  {name:"Jinsi ya Kupika Tambi za Dengu", price:1000, cat:"chakula", kw:["tambi za dengu","tambi"],
+    desc:"Mapishi ya tambi za dengu kwa unga wa dengu na viungo."},
+  {name:"Mwongozo Kamili wa Forex Trading", price:null, cat:"forex", kw:["forex","mwongozo wa forex"],
+    desc:"Mwongozo mkubwa wa kujifunza Forex Trading ukiwa na chati na mifano."},
+  {name:"Nguvu ya Kujiamini", price:null, cat:"maendeleo", kw:["nguvu ya kujiamini","kujiamini"],
+    desc:"Kitabu cha maendeleo binafsi kuhusu kujenga kujiamini."},
+  {name:"Unajimu wa Nyota", price:null, cat:"maendeleo", kw:["unajimu"],
+    desc:"Kitabu cha marejeo kuhusu unajimu wa nyota."}
 ];
 
 const CATEGORIES = {
-  "ujasiriamali": "💼 Ujasiriamali & Biashara — mf. \"Wakati wa Ujasiriamali\", \"Changamoto 12 za Ujasiriamali\", \"Mwajiriwa vs Mjasiriamali\"",
-  "uzalishaji": "🧴 Uzalishaji wa bidhaa nyumbani — mf. sabuni (magadi/maji/miche), shampoo, mishumaa, chaki, jiki, mafuta ya mgando",
-  "chakula": "🍰 Chakula & Vyakula vya biashara — mf. keki ya ndizi na nanasi, achali ya embe, tomato sauce, tambi za dengu",
+  "ujasiriamali": "💼 Ujasiriamali & Biashara",
+  "uzalishaji": "🧴 Uzalishaji wa bidhaa nyumbani (sabuni, shampoo, mishumaa n.k.)",
+  "chakula": "🍰 Chakula & vyakula vya biashara",
   "afya": "🌿 Afya",
-  "fedha": "💰 Fedha & Akaunti, ikiwemo Forex Trading",
+  "fedha": "💰 Fedha, Akaunti na Forex Trading",
   "mifugo": "🐄 Mifugo",
-  "nyuki": "🐝 Nyuki & Asali",
-  "dini": "📖 Dini & Imani",
-  "familia": "👨‍👩‍👧 Familia & Uzazi",
+  "nyuki": "🐝 Nyuki na Asali",
+  "dini": "📖 Dini na Imani",
+  "familia": "👨‍👩‍👧 Familia na Uzazi",
   "kilimo": "🌾 Kilimo",
   "teknolojia": "💻 Teknolojia",
   "elimu": "🎓 Elimu",
   "sheria": "⚖️ Sheria",
   "viongozi": "👑 Viongozi wa Dunia",
-  "maendeleo": "🧠 Maendeleo Binafsi — mf. \"Nguvu ya Kujiamini\""
+  "maendeleo": "🧠 Maendeleo Binafsi"
+};
+const CAT_LABEL = {
+  ujasiriamali:"ujasiriamali/biashara", uzalishaji:"uzalishaji wa bidhaa nyumbani", chakula:"chakula",
+  afya:"afya", fedha:"fedha na akaunti", mifugo:"mifugo", nyuki:"nyuki na asali", dini:"dini na imani",
+  familia:"familia na uzazi", kilimo:"kilimo", teknolojia:"teknolojia", elimu:"elimu", sheria:"sheria",
+  viongozi:"viongozi wa dunia", maendeleo:"maendeleo binafsi"
+};
+const CAT_KEYWORDS = {
+  ujasiriamali:["ujasiriamali","biashara"], uzalishaji:["uzalishaji","kutengeneza","sabuni","viwanda vidogo"],
+  chakula:["chakula","vyakula","kupika"], afya:["afya"], fedha:["fedha","akaunti","pesa","forex"],
+  mifugo:["mifugo","ng'ombe","kuku"], nyuki:["nyuki","asali"], dini:["dini","imani"],
+  familia:["familia","uzazi"], kilimo:["kilimo","mazao"], teknolojia:["teknolojia","kompyuta"],
+  elimu:["elimu","masomo"], sheria:["sheria"], viongozi:["viongozi"], maendeleo:["kujiamini","maendeleo binafsi"]
 };
 
 const SERVICES = [
@@ -199,127 +337,263 @@ const SERVICES = [
   {name:"📊 Data Entry", detail:"Kuingiza/kusafisha data Excel/Google Sheets, ripoti, pivot tables", price:"TSh 8,000 – 50,000", time:"kutegemea ukubwa wa data"}
 ];
 
-const PAGES = {
-  "duka": "shop.html", "vitabu": "shop.html", "malipo": "malipo.html",
-  "kuhusu": "about.html", "wasiliana": "contact.html", "bure": "sadebooks.html",
-  "magazeti": "magazeti.html", "studio": "graphic.html", "forex": "forex.html",
-  "akaunti": "account.html", "agiza": "sade-order.html"
-};
-
 const wa = (msg) => `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`;
-
-/* ---------- Intent handlers ---------- */
 function norm(s){ return s.toLowerCase().normalize("NFC"); }
 function has(text, words){ return words.some(w => text.includes(w)); }
 
 function findBook(text){
   return BOOKS.find(b => b.kw.some(k => text.includes(k)) || text.includes(norm(b.name)));
 }
-
 function findCategory(text){
-  const map = {
-    "ujasiriamali":["ujasiriamali","biashara"], "uzalishaji":["uzalishaji","kutengeneza","sabuni","viwanda vidogo"],
-    "chakula":["chakula","vyakula","kupika"], "afya":["afya"], "fedha":["fedha","akaunti","pesa","forex"],
-    "mifugo":["mifugo","ng'ombe","kuku"], "nyuki":["nyuki","asali"], "dini":["dini","imani"],
-    "familia":["familia","uzazi"], "kilimo":["kilimo","mazao"], "teknolojia":["teknolojia","kompyuta"],
-    "elimu":["elimu","masomo"], "sheria":["sheria"], "viongozi":["viongozi"], "maendeleo":["kujiamini","maendeleo binafsi"]
-  };
-  for(const [cat, kws] of Object.entries(map)){
+  for(const [cat, kws] of Object.entries(CAT_KEYWORDS)){
     if(has(text, kws)) return cat;
   }
   return null;
 }
 
+/* ---------- Jibu (answer) engine ---------- */
 function getAnswer(raw){
   const text = norm(raw.trim());
   if(!text) return "Niulize kitu — mf. \"bei ya vitabu\" au \"nalipaje\" 🙂";
 
-  // Salamu
   if(has(text, ["habari","mambo","hujambo","hello","hi ","vipi","shikamoo"]) && text.length < 30){
-    return "Habari yako! 👋 Karibu SadeBooks. Naweza kukusaidia na taarifa za vitabu, bei, malipo, au huduma za Herman Studio. Unahitaji nini leo?";
+    return "Habari yako! 👋 Karibu SadeBooks. Naweza kukusaidia na taarifa za vitabu, bei, malipo, au huduma za Herman Studio. Unahitaji nini leo? Bonyeza ☰ kuona maswali 200+ yaliyotayarishwa.";
   }
 
-  // Kitabu maalum lililotajwa
   const book = findBook(text);
   if(book){
     const priceStr = book.price ? `TSH ${book.price.toLocaleString()}` : "bei inayopatikana dukani (angalia shop.html)";
-    return `📖 **${book.name}**\nBei: ${priceStr}\n\nKununua: fungua ukurasa wa Duka (shop.html), bonyeza "Nunua", kisha fuata hatua za malipo kwa Mixx by Yas namba 0712 655 957 (HERMAN O SADE). Baada ya kulipa, tuma screenshot ya malipo WhatsApp na utapokea PDF ndani ya dakika 5–15.\n\n👉 ${wa("Habari Herman! Naomba kununua kitabu: " + book.name)}`;
+    return `📖 **${book.name}**\n${book.desc}\n\nBei: ${priceStr}\n\nKununua: fungua ukurasa wa Duka (shop.html), bonyeza "Nunua", kisha lipa kwa Mixx by Yas namba 0712 655 957 (HERMAN O SADE). Tuma screenshot ya malipo WhatsApp na upokee PDF ndani ya dakika 5–15.\n\n👉 ${wa("Habari Herman! Naomba kununua kitabu: " + book.name)}`;
   }
 
-  // Malipo / jinsi ya kulipa
-  if(has(text, ["lipa","malipo","kulipia","namna ya kulipa","njia ya malipo","mpesa","m-pesa","tigo pesa","airtel","mixx"])){
-    return "💳 **Jinsi ya kulipa (hatua 7):**\n1. Chagua kitabu kwenye Duka\n2. Simu yako → Tuma Pesa → Mitandao Mingine → Mixx by Yas (Tigo)\n3. Namba ya kulipa: **0712 655 957** (Jina: HERMAN O SADE)\n4. Weka bei ya kitabu\n5. Thibitisha kwa PIN\n6. Piga screenshot ya SMS ya uthibitisho\n7. Tuma screenshot hiyo WhatsApp — kitabu (PDF) kinatumwa ndani ya dakika 5–15, saa 24/7\n\n👉 " + wa("Habari Herman! Nimetuma malipo, naomba kitabu changu.");
+  if(has(text, ["lipa","malipo","kulipia","namna ya kulipa","njia ya malipo","mpesa","m-pesa","tigo pesa","airtel","mixx","dola"])){
+    return "💳 **Jinsi ya kulipa (hatua 7):**\n1. Chagua kitabu kwenye Duka\n2. Simu yako → Tuma Pesa → Mitandao Mingine → Mixx by Yas (Tigo)\n3. Namba ya kulipa: **0712 655 957** (Jina: HERMAN O SADE)\n4. Weka bei ya kitabu\n5. Thibitisha kwa PIN\n6. Piga screenshot ya SMS ya uthibitisho\n7. Tuma screenshot hiyo WhatsApp — kitabu (PDF) kinatumwa ndani ya dakika 5–15, saa 24/7. Njia zingine (M-Pesa/Tigo Pesa/Airtel Money) zinapatikana kwa baadhi ya vitabu kupitia Azampay.\n\n👉 " + wa("Habari Herman! Nimetuma malipo, naomba kitabu changu.");
   }
 
-  // Bei
   if(has(text, ["bei","gharama","shilingi","tsh","pesa ngapi"])){
-    return "💰 Vitabu vingi ni **TSH 1,000** kila kimoja (rahisi kwa vyote). Baadhi ya vitabu maalum/virefu zaidi vinaweza kuwa TSH 2,000–5,000. Bei kamili ya kila kitabu inaonekana chini ya jina lake kwenye ukurasa wa Duka (shop.html). Ukiniambia jina la kitabu, nitakuambia bei yake moja kwa moja.";
+    return "💰 Vitabu vingi ni **TSH 1,000** kila kimoja. Baadhi ya vitabu maalum/virefu zaidi vinaweza kuwa TSH 2,000–5,000. Bei kamili ya kila kitabu inaonekana chini ya jina lake kwenye ukurasa wa Duka (shop.html). Niambie jina la kitabu, nitakuambia bei yake moja kwa moja.";
   }
 
-  // Vitabu vya bure
   if(has(text, ["bure","free","bila malipo","hakuna malipo"])){
-    return "📖 Ndiyo! Kuna vitabu vya BURE kabisa — pakua kwenye ukurasa \"Free Half Books\" (sadebooks.html) na \"Magazeti Bure\" (magazeti.html). Hakuna malipo yoyote kwa hivyo.";
+    return "📖 Ndiyo! Kuna vitabu vya BURE kabisa — pakua kwenye ukurasa \"Free Half Books\" (sadebooks.html) na \"Magazeti Bure\" (magazeti.html). Hakuna malipo yoyote kwa hivyo, na vinaongezwa mara kwa mara.";
   }
 
-  // Herman Studio / huduma
-  if(has(text, ["huduma","studio","logo","design","video editing","uhariri","maudhui","data entry","poster","banner"])){
+  if(has(text, ["huduma","studio","logo","design","video editing","uhariri","maudhui","data entry","poster","banner","captions","excel","pivot"])){
     const list = SERVICES.map(s => `${s.name}: ${s.detail} — ${s.price} (muda: ${s.time})`).join("\n");
-    return `🎨 **Herman Studio** hutoa huduma hizi za ubunifu:\n\n${list}\n\nMchakato: wasiliana WhatsApp, mnaelezana kazi, unalipa kwanza (100% kazi ndogo au 50/50 kazi kubwa), kisha kazi inaanza. Malipo: M-Pesa/Tigo Pesa/Airtel Money.\n\n👉 ${wa("Habari Herman, nahitaji msaada wa huduma ya Herman Studio.")}`;
+    return `🎨 **Herman Studio** hutoa huduma hizi za ubunifu:\n\n${list}\n\nMchakato: wasiliana WhatsApp, mnaelezana kazi, unalipa kwanza (100% kazi ndogo au 50/50 kazi kubwa), kisha kazi inaanza. Malipo: M-Pesa/Tigo Pesa/Airtel Money. Data ya wateja inahifadhiwa kwa usiri.\n\n👉 ${wa("Habari Herman, nahitaji msaada wa huduma ya Herman Studio.")}`;
   }
 
-  // Category browsing
   const cat = findCategory(text);
   if(cat && has(text, ["vitabu","kitabu"])){
     return `📚 Mada hiyo ipo! ${CATEGORIES[cat]}.\n\nAngalia orodha kamili na bei kwenye ukurasa wa Duka: shop.html (chuja kwa mada husika).`;
   }
 
-  // Orodha ya vitabu kwa ujumla
-  if(has(text, ["vitabu","kitabu gani","orodha ya vitabu","mna vitabu","nini kwenye duka"])){
-    return "📚 SadeBooks ina vitabu 100+ katika mada 15+: Ujasiriamali, Uzalishaji wa bidhaa (sabuni, shampoo, mishumaa n.k.), Chakula, Afya, Fedha/Forex, Mifugo, Nyuki & Asali, Dini, Familia, Kilimo, Teknolojia, Elimu, Sheria, Viongozi wa Dunia, na Maendeleo Binafsi. Bei nyingi ni TSH 1,000 tu.\n\nNiambie mada unayopenda (mf. \"vitabu vya ujasiriamali\") au fungua shop.html kuona vyote.";
+  if(has(text, ["vitabu","kitabu","orodha ya vitabu","mna vitabu","nini kwenye duka"])){
+    return "📚 SadeBooks ina vitabu 100+ katika mada 15+: Ujasiriamali, Uzalishaji wa bidhaa (sabuni, shampoo, mishumaa n.k.), Chakula, Afya, Fedha/Forex, Mifugo, Nyuki & Asali, Dini, Familia, Kilimo, Teknolojia, Elimu, Sheria, Viongozi wa Dunia, na Maendeleo Binafsi. Bei nyingi ni TSH 1,000 tu, vinatumwa PDF kwa WhatsApp, na vinasomwa kwenye simu/kompyuta/tablet yoyote — hata offline.\n\nNiambie mada unayopenda (mf. \"vitabu vya ujasiriamali\") au fungua ☰ kuona maswali zaidi.";
   }
 
-  // Kuhusu SadeBooks / mmiliki
-  if(has(text, ["nani mmiliki","kuhusu sadebooks","herman sade","nani anamiliki","historia","ilianzishwa lini"])){
+  if(has(text, ["nani mmiliki","kuhusu sadebooks","herman sade","nani anamiliki","historia","ilianzishwa lini","dhamira"])){
     return "🏢 SadeBooks ilianzishwa 2024 na **Herman Sade**, duka la kwanza la vitabu vya kidigitali (PDF) kwa Kiswahili Tanzania. Dhamira: kufikisha maarifa kwa Watanzania wote kwa lugha yao ya mama na bei nafuu, upatikanaji masaa 24/7 kupitia WhatsApp na tovuti.";
   }
 
-  // Mawasiliano
-  if(has(text, ["wasiliana","namba ya simu","namba yako","email","barua pepe","whatsapp","piga simu"])){
-    return `📞 Unaweza kumfikia Herman Sade moja kwa moja:\nWhatsApp/Simu: **${CONTACT.whatsappDisplay}**\nBarua pepe: **${CONTACT.email}**\n\n👉 ${wa("Habari Herman!")}`;
+  if(has(text, ["wasiliana","namba ya simu","namba yako","email","barua pepe","whatsapp","piga simu","malalamiko","ushirikiano","ofisi"])){
+    return `📞 Unaweza kumfikia Herman Sade moja kwa moja:\nWhatsApp/Simu: **${CONTACT.whatsappDisplay}**\nBarua pepe: **${CONTACT.email}**\nHuduma: mtandaoni Tanzania nzima, masaa 24/7.\n\n👉 ${wa("Habari Herman!")}`;
   }
 
-  // App
-  if(has(text, ["app","application","apk","pakua app"])){
+  if(has(text, ["app","application","apk"])){
     return "📱 Kuna SadeBooks App ya Android (APK) — **bure kabisa**, hakuna matangazo, na inasoma vitabu **offline**. Ipo kwenye ukurasa wa nyumbani, kitufe \"Pakua App Bure\".";
   }
 
-  // Hakimiliki / sera
-  if(has(text, ["hakimiliki","copyright","sera","kusambaza","kuuza tena"])){
-    return "🔒 Ukinunua kitabu unapata leseni ya matumizi **binafsi** tu — unaweza kusoma/kuprinti nakala moja na kufungua kwenye vifaa viwili unavyomiliki. Haturuhusiwi kusambaza, kuuza tena, au kupakia vitabu mtandaoni — hii ni ukiukaji wa hakimiliki. Maelezo kamili: about.html.";
+  if(has(text, ["hakimiliki","copyright","sera","kusambaza","sambaza","kuuza tena","leseni","kumiliki","ninamiliki"])){
+    return "🔒 Ukinunua kitabu unapata leseni ya matumizi **binafsi** tu (haina muda wa kuisha) — unaweza kusoma/kuprinti nakala moja na kufungua kwenye vifaa viwili unavyomiliki. Haturuhusiwi kusambaza, kuuza tena, au kupakia vitabu mtandaoni — hii ni ukiukaji wa hakimiliki chini ya Sheria ya Haki Miliki ya Tanzania. Maelezo kamili: about.html.";
   }
 
-  // Asante
   if(has(text, ["asante","nashukuru","umenisaidia"])){
     return "Karibu sana! 🙏 Nipo hapa kila wakati ukihitaji msaada kuhusu SadeBooks. Kuna kingine unachotaka kujua?";
   }
 
-  // Fallback
-  return `Samahani, sijaelewa vizuri swali lako 🙏 Ninaweza kukusaidia na: bei ya vitabu, jinsi ya kulipa, aina za vitabu tulizonazo, huduma za Herman Studio, au mawasiliano. Unaweza pia kuuliza moja kwa moja Herman kupitia WhatsApp: ${wa(raw)}`;
+  return `Samahani, sijaelewa vizuri swali lako 🙏 Bonyeza ☰ kuona orodha ya maswali 200+ yaliyotayarishwa, au niulize kuhusu: bei, malipo, aina za vitabu, huduma za Herman Studio, au mawasiliano. Unaweza pia kuuliza Herman moja kwa moja: ${wa(raw)}`;
 }
 
-/* ---------- UI wiring ---------- */
+/* =========================================================================
+   BENKI YA MASWALI 200+ (kwa sidebar) — imegawanywa kwa makundi
+   ========================================================================= */
+function buildQuestionBank(){
+  const bank = [];
+  const add = (cat, arr) => arr.forEach(q => bank.push({cat, q}));
+
+  add("🏢 Kuhusu SadeBooks", [
+    "SadeBooks ni nini?","SadeBooks ilianzishwa lini?","Nani mmiliki wa SadeBooks?",
+    "Herman Sade ni nani?","SadeBooks iko nchi gani?","Dhamira ya SadeBooks ni nini?",
+    "SadeBooks ina vitabu vingapi?","SadeBooks inashughulikia mada gani?",
+    "Kwa nini nichague SadeBooks?","Historia ya SadeBooks ni ipi?"
+  ]);
+
+  add("📚 Vitabu – Maswali ya Jumla", [
+    "Mna vitabu gani?","Naweza kupata orodha kamili ya vitabu wapi?","Vitabu vyenu ni vya lugha gani?",
+    "Vitabu ni vya aina gani (PDF, hard copy)?","Naweza kusoma kitabu kwenye simu?",
+    "Kitabu kinatumwa namna gani baada ya kununua?","Vitabu vinapatikana muda gani (masaa ngapi)?",
+    "Kuna vitabu vipya kila wiki?","Naweza kusoma kitabu offline?","Kitabu kimoja kinaweza kusomwa kwenye vifaa vingapi?",
+    "Naweza kuprinti kitabu nilichonunua?","Naweza kumsambazia rafiki kitabu nilichonunua?",
+    "Vitabu vinafaa kwa umri gani?","Nitajuaje kama kitabu ni bora kabla ya kununua?","Vitabu vinaandikwa na nani?"
+  ]);
+
+  // Vitabu kwa mada (30)
+  Object.keys(CATEGORIES).forEach(cat => {
+    add("🗂️ Vitabu kwa Mada", [
+      `Mna vitabu vya ${CAT_LABEL[cat]}?`,
+      `Nionyeshe vitabu vya mada ya ${CAT_LABEL[cat]}`
+    ]);
+  });
+
+  // Vitabu maalum (19 x 3 = 57)
+  BOOKS.forEach(b => {
+    add("📖 Maswali ya Vitabu Maalum", [
+      `Kitabu cha "${b.name}" kina bei gani?`,
+      `Ninawezaje kununua "${b.name}"?`,
+      `Kitabu "${b.name}" kinahusu nini?`
+    ]);
+  });
+
+  add("💳 Malipo", [
+    "Nalipaje kitabu?","Njia gani za malipo mnazokubali?","Namba ya kulipia ni ipi?",
+    "Jina la kupokea malipo ni lipi?","Nikishalipa nifanye nini?","Kitabu kinafika baada ya muda gani?",
+    "Naweza kulipa kwa M-Pesa?","Naweza kulipa kwa Tigo Pesa?","Naweza kulipa kwa Airtel Money?",
+    "Malipo yanapokelewa masaa gani ya siku?","Nikikosea kutuma pesa nifanyeje?",
+    "Naweza kulipia zaidi ya kitabu kimoja kwa wakati mmoja?","Kuna njia ya haraka ya kutuma uthibitisho wa malipo?",
+    "Naweza kulipa kwa dola au fedha za nje?","Malipo yanalindwaje kiusalama?"
+  ]);
+
+  add("🎁 Vitabu vya Bure", [
+    "Kuna vitabu vya bure?","Naipata wapi vitabu vya bure?","Vitabu vya bure vina mada gani?",
+    "Je, magazeti ya bure yapo?","Vitabu vya bure vina ubora sawa na vya kulipia?",
+    "Ninahitaji kulipa chochote kwa vitabu vya Free Half Books?","Naweza kupakua magazeti bure bila akaunti?",
+    "Vitabu vya bure vinapatikana kwa muda gani?","Kwa nini kuna vitabu vya bure?",
+    "Nitajuaje kitabu kipya cha bure kikiongezwa?"
+  ]);
+
+  add("🎨 Huduma za Herman Studio", [
+    "Herman Studio ni nini?","Herman Studio anatoa huduma gani?","Ninawasiliana vipi kuomba huduma?",
+    "Malipo ya huduma yanafanyikaje?","Nalipa kabla au baada ya kazi?","Kazi inachukua muda gani kukamilika?",
+    "Naweza kuomba marekebisho baada ya kupokea kazi?","Herman anafanya kazi za haraka (urgent)?",
+    "Data yangu itakuwa salama nikitumia huduma ya data entry?","Herman Studio inafanya kazi na wateja wa nje ya Tanzania?",
+    "Bei ya kutengeneza logo ni ngapi?","Mnatengeneza poster za matukio?","Mnatengeneza banners za mitandao ya kijamii?",
+    "Business card mnatengeneza?","Naweza kuomba marekebisho ya logo?",
+    "Bei ya kuhariri video ni ngapi?","Mnahariri video za TikTok?","Mnaweza kuongeza maandishi kwenye video (subtitles)?",
+    "Video inatoka kwa ubora gani (HD/4K)?","Mnaweza kuongeza intro na outro?",
+    "Bei ya kuandika makala ni ngapi?","Mnaandika captions za Instagram?","Mnaandika maelezo ya bidhaa?",
+    "Mnaandika kwa Kiingereza pia?","Mnaandika scripts za video?",
+    "Bei ya huduma ya data entry ni ngapi?","Mnafanya kazi ya Excel?","Mnasafisha data chafu?",
+    "Mnatengeneza pivot tables?","Usiri wa data umehakikishwaje?"
+  ]);
+
+  add("📱 App ya SadeBooks", [
+    "Kuna app ya SadeBooks?","App inapatikana wapi?","App ni ya bure?","App ina matangazo?",
+    "Naweza kusoma vitabu offline kwenye app?","App inapatikana kwa iPhone?","App ina ukubwa gani (MB)?",
+    "Nitawezaje kusakinisha (install) app?","App inahitaji akaunti?","App inapata masasisho mara ngapi?"
+  ]);
+
+  add("🔒 Sera na Hakimiliki", [
+    "Nikinunua kitabu, ninamiliki nini hasa?","Naweza kusambaza kitabu kwa marafiki?",
+    "Naweza kuuza tena kitabu nilichonunua?","Nini kitatokea nikikiuka sera ya hakimiliki?",
+    "Naweza kuprinti kitabu?","Leseni ya kitabu ina muda wa kuisha?","Naweza kutoa maoni ya kitabu hadharani?",
+    "Sheria zipi zinalinda hakimiliki ya SadeBooks?","Nitaripoti wapi mtu anayesambaza vitabu bila ruhusa?",
+    "Sera ya faragha inasemaje kuhusu taarifa zangu?"
+  ]);
+
+  add("📞 Mawasiliano", [
+    "Namba ya WhatsApp ya SadeBooks ni ipi?","Barua pepe ya SadeBooks ni ipi?","Naweza kupiga simu moja kwa moja?",
+    "Herman Sade anapatikana masaa gani?","Naweza kuwasiliana kwa Kiingereza?","Nina malalamiko, niwasiliane nani?",
+    "Nataka kufanya ushirikiano wa kibiashara, niwasiliane vipi?","Kuna fomu ya mawasiliano kwenye tovuti?",
+    "Mko na ofisi ya kufika ana kwa ana?","Naweza kufuatilia oda yangu kupitia WhatsApp?"
+  ]);
+
+  add("📊 Forex Trading", [
+    "Mna kitabu cha kujifunza Forex?","Kitabu cha Forex kinafaa kwa anayeanza?",
+    "Kitabu cha Forex kina chati au mifano?","Bei ya mwongozo wa Forex ni ngapi?",
+    "Naipata wapi taarifa zaidi za Forex kwenye tovuti?"
+  ]);
+
+  return bank;
+}
+const QUESTION_BANK = buildQuestionBank();
+
+/* ---------- Sidebar render ---------- */
+const sbBody = document.getElementById("sbBody");
+const sbCount = document.getElementById("sbCount");
+
+function groupByCat(items){
+  const map = {};
+  items.forEach(it => { (map[it.cat] = map[it.cat] || []).push(it.q); });
+  return map;
+}
+function renderSidebar(filter){
+  const f = norm(filter || "");
+  const items = f ? QUESTION_BANK.filter(it => norm(it.q).includes(f)) : QUESTION_BANK;
+  const grouped = groupByCat(items);
+  sbBody.innerHTML = "";
+  let shown = 0;
+  Object.keys(grouped).forEach((cat, idx) => {
+    const qs = grouped[cat];
+    shown += qs.length;
+    const wrap = document.createElement("div");
+    wrap.className = "cat" + (f ? " expanded" : (idx === 0 ? " expanded" : ""));
+    wrap.innerHTML = `
+      <button class="cat-head">
+        <span>${cat}</span>
+        <span class="n">${qs.length}</span>
+        <span class="arrow">▸</span>
+      </button>
+      <div class="cat-list">
+        ${qs.map(q => `<button class="qbtn">${q}</button>`).join("")}
+      </div>`;
+    wrap.querySelector(".cat-head").addEventListener("click", () => wrap.classList.toggle("expanded"));
+    wrap.querySelectorAll(".qbtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        userInput.value = btn.textContent;
+        sendMessage();
+        closeSidebar();
+      });
+    });
+    sbBody.appendChild(wrap);
+  });
+  sbCount.textContent = f ? `Maswali ${shown} yaliyopatikana` : `Jumla ya maswali: ${QUESTION_BANK.length}`;
+}
+renderSidebar("");
+
+document.getElementById("searchQ").addEventListener("input", (e) => renderSidebar(e.target.value));
+
+/* ---------- Sidebar open/close ---------- */
+const appShell = document.getElementById("appShell");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+function isDesktop(){ return window.matchMedia("(min-width:1000px)").matches; }
+function openSidebar(){
+  if(isDesktop()){ appShell.classList.remove("sidebar-closed"); }
+  else { sidebar.classList.add("open"); overlay.classList.add("show"); }
+}
+function closeSidebar(){
+  if(isDesktop()){ appShell.classList.add("sidebar-closed"); }
+  else { sidebar.classList.remove("open"); overlay.classList.remove("show"); }
+}
+function toggleSidebar(){
+  const closed = isDesktop() ? appShell.classList.contains("sidebar-closed") : !sidebar.classList.contains("open");
+  closed ? openSidebar() : closeSidebar();
+}
+document.getElementById("menuBtn").addEventListener("click", toggleSidebar);
+document.getElementById("sbCloseBtn").addEventListener("click", closeSidebar);
+document.getElementById("overlay").addEventListener("click", closeSidebar);
+document.getElementById("openMenuHint").addEventListener("click", openSidebar);
+
+/* ---------- Chat UI ---------- */
 const chatArea   = document.getElementById("chatArea");
 const introBlock = document.getElementById("introBlock");
 const userInput  = document.getElementById("userInput");
 const sendBtn    = document.getElementById("sendBtn");
 
 document.querySelectorAll(".chip").forEach(chip => {
-  chip.addEventListener("click", () => {
-    userInput.value = chip.textContent.trim();
-    sendMessage();
-  });
+  chip.addEventListener("click", () => { userInput.value = chip.textContent.trim(); sendMessage(); });
 });
-
 userInput.addEventListener("input", () => {
   userInput.style.height = "auto";
   userInput.style.height = Math.min(userInput.scrollHeight, 120) + "px";
@@ -329,33 +603,21 @@ userInput.addEventListener("keydown", (e) => {
 });
 sendBtn.addEventListener("click", sendMessage);
 
-function escapeHtml(str){
-  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
+function escapeHtml(str){ return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function formatText(str){
   let s = escapeHtml(str);
   s = s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
   s = s.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">Bonyeza hapa</a>');
   return s;
 }
-
 function addMessage(role, text){
   introBlock.style.display = "none";
   const wrap = document.createElement("div");
   wrap.className = "msg " + (role === "user" ? "user" : "bot");
-  const avatar = document.createElement("div");
-  avatar.className = "avatar";
-  avatar.textContent = role === "user" ? "👤" : "S";
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
-  bubble.innerHTML = formatText(text);
-  wrap.appendChild(avatar);
-  wrap.appendChild(bubble);
+  wrap.innerHTML = `<div class="avatar">${role==="user" ? "👤" : "S"}</div><div class="bubble">${formatText(text)}</div>`;
   chatArea.appendChild(wrap);
   chatArea.scrollTop = chatArea.scrollHeight;
-  return bubble;
 }
-
 function addTyping(){
   const wrap = document.createElement("div");
   wrap.className = "msg bot"; wrap.id = "typingMsg";
@@ -363,10 +625,7 @@ function addTyping(){
   chatArea.appendChild(wrap);
   chatArea.scrollTop = chatArea.scrollHeight;
 }
-function removeTyping(){
-  const t = document.getElementById("typingMsg");
-  if(t) t.remove();
-}
+function removeTyping(){ const t = document.getElementById("typingMsg"); if(t) t.remove(); }
 
 function sendMessage(){
   const text = userInput.value.trim();
@@ -375,13 +634,10 @@ function sendMessage(){
   userInput.value = ""; userInput.style.height = "auto";
   sendBtn.disabled = true;
   addTyping();
-
-  // Muda mfupi wa kujifanya "anafikiri" ili ionekane ya kawaida (injini ni ya ndani, haraka sana)
-  const delay = 350 + Math.random() * 500;
+  const delay = 300 + Math.random() * 450;
   setTimeout(() => {
     removeTyping();
-    const reply = getAnswer(text);
-    addMessage("bot", reply);
+    addMessage("bot", getAnswer(text));
     sendBtn.disabled = false;
     userInput.focus();
   }, delay);
